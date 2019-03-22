@@ -1,125 +1,187 @@
 <html>  
     <head>  
-        <title>文字编码</title>  
-    </head>  
-        <body>             
+        <title>平面坐标变换</title>  
+    </head>
+       <body>
+
             <canvas 
-            id="myCanvas1" width="160" height="160" style="border:1px solid #c3c3c3">your browser does not support the canvas tag
+            id="myCanvas1" width=160 height=160 style="border:1px solid #c3c3c3">your browser does not support the canvas tag
             </canvas>
             <canvas 
-            id="myCanvas2" width="160" height="160" style="border:1px solid #c3c3c3">your browser does not support the canvas tag
+            id="myCanvas2" width=160 height=160 style="border:1px solid #c3c3c3">your browser does not support the canvas tag
             </canvas>
 			</br>
             <input id="fileInput1" type="file" onchange="processFile1()"/>
             <input id="fileInput2" type="file" onchange="processFile2()"/>
-            <script> 
-                function processFile1(){
-                    var file=document.getElementById("fileInput1").files[0];
-                    var reader=new FileReader();
-                    reader.readAsText(file);
-                    reader.onload=function(e)
-                    {
-                        var str = this.result;//读取文本
-                        var number = new Array();
-                        number= digitalExtraction(str,number);//提取数字并存入数组
-                        draw1(number);//画图
-                    }                   
-                }
-				function processFile2(){
-                    var file=document.getElementById("fileInput2").files[0];
-                    var reader=new FileReader();
-                    reader.readAsText(file);
-                    reader.onload=function(e)
-                    {
-                        var str = this.result;//读取文本
-                        var number = new Array();
-                        number= digitalExtraction(str,number);//提取数字并存入数组
-                        draw2(number);//画图
-                    }                   
-                }
-                //提取数字，并存入数组
-               function digitalExtraction(str,number){
-                    var heap= str.replace(/[^0-9.L]/ig,"A");
-                    var numcharacter="";//存储数字字符
-                    var number =new Array();//提取数字数组
-                    var i=0;
-                    var flag=0;//heap字符串当前标记
-                    var n=0;//标识数字与字符转换位置
-                    var character=heap[flag];//获取字符串的一个字符
-                   // document.write(heap);
-                    while(character!=null){
-                        if(character=="L"){
-                             number[i++]=-1;
-                             flag+=2;
-                             character=heap[flag];
-                         }
-                        if(character!="A"){
-                            n=1;
-                            numcharacter+=character;
-                          }
-                        else{
-                            if(n){
-                                number[i++]=parseFloat(numcharacter);
-                                numcharacter="";
-                                n=0;
-                            }
-                        }
-                         character=heap[++flag];
-                    }                 
-                    return number;
-               }
-               function draw1(number){
-				   var canvas=document.getElementById('myCanvas1');
-                   var cxt=canvas.getContext('2d'); 
-                   var n= number.length;
-                   number[n]=-1;
-                   var n= number.length;
-                   var flag=0;
-                   var x=new Array();
-                   var y=new Array();
-                   var j=0;
-				   for(var i=1,j=0;i<n;i++){
-					   if(number[i]!=-1){
-						   x[j]=number[i]*10;
-                           y[j]=number[++i]*10;
-                           j++;
-                       }else{
-                           cxt.moveTo(x[0],160-y[0]);//绘制移动到录入的坐标（由于老师要求是以左下角为原点，所以用高度减去坐标位置）
-                           for(var k=1;k<j;k++){
-                               cxt.lineTo(x[k],160-y[k]);//和上面一样
-                           }
-                           cxt.stroke();
-                           j=0;
-                        }
-                    }
-               }
-				function draw2(number){
-				   var canvas=document.getElementById('myCanvas2');
-                   var cxt=canvas.getContext('2d'); 
-                   var n= number.length;
-                   number[n]=-1;
-                   var n= number.length;
-                   var flag=0;
-                   var x=new Array();
-                   var y=new Array();
-                   var j=0;
-				   for(var i=1,j=0;i<n;i++){
-					   if(number[i]!=-1){
-						   x[j]=number[i]*10;
-                           y[j]=number[++i]*10;
-                           j++;
-                       }else{
-                           cxt.moveTo(x[0],160-y[0]);//绘制移动到录入的坐标（由于老师要求是以左下角为原点，所以用高度减去坐标位置）
-                           for(var k=1;k<j;k++){
-                               cxt.lineTo(x[k],160-y[k]);//和上面一样
-                           }
-                           cxt.stroke();
-                           j=0;
-                        }
-                    }
-               }
+            <script>
+				var ec1, ec2;
+				var path1, path2;
+
+				main();
+
+				function main() {
+					ec1 = document.getElementById("myCanvas1");
+					ec2 = document.getElementById("myCanvas2");
+
+					ec1.height = ec1.clientHeight;
+					ec1.width = ec1.clientWidth;
+					ec2.height = ec2.clientHeight;
+					ec2.width = ec2.clientWidth;
+
+					drawAxis(ec1);//绘制网格
+					drawAxis(ec2);
+
+				}
+
+					//绘制网格
+				function drawAxis(ec) {
+					var ctx = ec.getContext("2d");
+					var x = ec.width;
+					var y = ec.height;
+
+					ctx.strokeStyle = '#F0F8FF';
+					for (let index = 0; index < x; index += 10) {
+						ctx.beginPath();
+						ctx.moveTo(index, 0);
+						ctx.lineTo(index, y);
+						ctx.stroke();
+					}
+					for (let index = 0; index < y; index += 10) {
+						ctx.beginPath();
+						ctx.moveTo(0, index);
+						ctx.lineTo(x, index);
+						ctx.stroke();
+					}
+				}
 				
-            </script>   
+				function drawFile1(ec) {
+					var canvas=document.getElementById('myCanvas1');
+					var ctx = ec.getContext("2d");
+					ctx.strokeStyle = '#000000';
+
+					for (let index1 = 0; index1 < path1.length; index1++) {
+							const element1 = path1[index1];
+						ctx.beginPath();
+						ctx.moveTo(element1[0] * 10, 160 - element1[1] * 10);
+						for (let index2 = 2; index2 < element1.length; index2 += 2) {
+							ctx.lineTo(element1[index2] * 10, 160 - element1[index2 + 1] * 10);
+						}
+						ctx.stroke();
+					}
+				}
+				function drawFile2(ec) {
+					var canvas=document.getElementById('myCanvas2');
+					var ctx = ec.getContext("2d");
+					ctx.strokeStyle = '#000000';
+
+					for (let index1 = 0; index1 < path2.length; index1++) {
+							const element1 = path2[index1];
+						ctx.beginPath();
+						ctx.moveTo(element1[0] * 10, 160 - element1[1] * 10);
+						for (let index2 = 2; index2 < element1.length; index2 += 2) {
+							ctx.lineTo(element1[index2] * 10, 160 - element1[index2 + 1] * 10);
+						}
+						ctx.stroke();
+					}
+				}
+
+				function processFile1() {
+					
+					var file = document.getElementById("fileInput1").files[0];
+					var reader = new FileReader();
+					reader.readAsText(file);
+					reader.onload = function(e) {
+						var str = reader.result.replace(/^L[0-9]/gim, 'BEGIN').replace(/end/gim, 'END');
+						var i = -1;
+						path1 = new Array();
+						var pathsLast = -1;
+						var pathsLastLast = -1;
+						var flagInBlock = false;
+						var flagInNumStr = false;
+						var numString = '';
+
+						while (str[++i] != null) {
+							if (str.substr(i, 5) == 'BEGIN') {
+								flagInBlock = true;
+								i += 6;
+								path1[++pathsLast] = new Array();
+								continue;
+							}
+							if (str.substr(i, 3) == 'END') {
+								flagInBlock = false;
+								i += 4;
+								pathsLastLast = -1;
+								continue;
+							}
+							if (
+								flagInBlock &&
+								(
+									(str[i] >= '0' && str[i] <= '9')
+									||
+									str[i] == '.'
+								)
+							) {
+								flagInNumStr = true;
+								numString += str[i];
+							}
+							else if (flagInNumStr) {
+								flagInNumStr = false;
+								path1[pathsLast][++pathsLastLast] = parseFloat(numString);
+								numString = '';
+							}
+						}
+						drawFile1(ec1);
+					}
+				}
+				function processFile2() {
+					
+					var file = document.getElementById("fileInput2").files[0];
+					var reader = new FileReader();
+					reader.readAsText(file);
+					reader.onload = function(e) {
+						var str = reader.result.replace(/^L[0-9]/gim, 'BEGIN').replace(/end/gim, 'END');
+						var i = -1;
+						path2 = new Array();
+						var pathsLast = -1;
+						var pathsLastLast = -1;
+						var flagInBlock = false;
+						var flagInNumStr = false;
+						var numString = '';
+
+						while (str[++i] != null) {
+							if (str.substr(i, 5) == 'BEGIN') {
+								flagInBlock = true;
+								i += 6;
+								path2[++pathsLast] = new Array();
+								continue;
+							}
+							if (str.substr(i, 3) == 'END') {
+								flagInBlock = false;
+								i += 4;
+								pathsLastLast = -1;
+								continue;
+							}
+							if (
+								flagInBlock &&
+								(
+									(str[i] >= '0' && str[i] <= '9')
+									||
+									str[i] == '.'
+								)
+							) {
+								flagInNumStr = true;
+								numString += str[i];
+							}
+							else if (flagInNumStr) {
+								flagInNumStr = false;
+								path2[pathsLast][++pathsLastLast] = parseFloat(numString);
+								numString = '';
+							}
+						}
+						drawFile2(ec2);
+					}
+				}
+			</script>   
         </body>  
 </html> 
-</html> 
+
