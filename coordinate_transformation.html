@@ -3,12 +3,24 @@
         <title>平面坐标变换</title>  
     </head>
        <body>
-
+       <div>
+       <button id="ResetTr">重置</button>
+       </div>
+		   </br>
+       <div>
+       <button id="LeftTaperTr">左斜变换</button>
+       <button id="ShoulderTr">耸肩变换</button>
+	   <button id="ScaleTr">比例变换</button>
+	   <button id="SpinTr">旋转变换</button>
+	   <button id="MirrorTr">对称变换</button>
+	   <button id="MoveTr">平移变换</button>
+           </div>
+		   </br>
             <canvas 
-            id="myCanvas1" width=160 height=160 style="border:1px solid #c3c3c3">your browser does not support the canvas tag
+            id="myCanvas1" width=320 height=320 style="border:1px solid #c3c3c3">your browser does not support the canvas tag
             </canvas>
             <canvas 
-            id="myCanvas2" width=160 height=160 style="border:1px solid #c3c3c3">your browser does not support the canvas tag
+            id="myCanvas2" width=320 height=320 style="border:1px solid #c3c3c3">your browser does not support the canvas tag
             </canvas>
 			</br>
             <input id="fileInput1" type="file" onchange="processFile1()"/>
@@ -31,6 +43,13 @@
 					drawAxis(ec1);//绘制网格
 					drawAxis(ec2);
 
+					document.getElementById('ResetTr').onclick = (e) => drawFilesTr(1, 0, 0, 1, 0, 0);
+					document.getElementById('LeftTaperTr').onclick = (e) => drawFilesTr(1, 0, 0.5, 1, 0, 0);
+					document.getElementById('ShoulderTr').onclick = (e) => drawFilesTr(1, -0.5, 0, 1, 0, 0);
+					document.getElementById('ScaleTr').onclick = (e) => drawFilesTr(0.75, 0, 0, 0.75, 0, 0);
+					document.getElementById('SpinTr').onclick = (e) => drawFilesTr(1, -0.5, 0.5, 1, 0, 0);
+					document.getElementById('MirrorTr').onclick = (e) => drawFilesTr(-1, 0, 0, 1, ec1.width, 0);
+					document.getElementById('MoveTr').onclick = (e) => drawFilesTr(1, 0, 0, 1, 30, 0);
 				}
 
 					//绘制网格
@@ -54,6 +73,20 @@
 					}
 				}
 				
+					//变换函数：由清空画布和变换矩阵构成
+				function drawFilesTr(a, b, c, d, e, f) {
+					ec2.getContext("2d").setTransform(1, 0, 0, 1, 0, 0);
+					ec2.getContext("2d").clearRect(0, 0, ec2.width, ec2.height);
+					drawAxis(ec2);
+					ec2.getContext("2d").setTransform(a, b, c, d, e, f);
+					drawFile2(ec2);
+			
+					ec1.getContext("2d").setTransform(1, 0, 0, 1, 0, 0);
+					ec1.getContext("2d").clearRect(0, 0, ec1.width, ec1.height);
+					drawAxis(ec1);
+					ec1.getContext("2d").setTransform(a, b, c, d, e, f);
+					drawFile1(ec1);
+				}
 				function drawFile1(ec) {
 					var canvas=document.getElementById('myCanvas1');
 					var ctx = ec.getContext("2d");
@@ -62,9 +95,9 @@
 					for (let index1 = 0; index1 < path1.length; index1++) {
 							const element1 = path1[index1];
 						ctx.beginPath();
-						ctx.moveTo(element1[0] * 10, 160 - element1[1] * 10);
+						ctx.moveTo(element1[0] * 10, 320 - element1[1] * 10);
 						for (let index2 = 2; index2 < element1.length; index2 += 2) {
-							ctx.lineTo(element1[index2] * 10, 160 - element1[index2 + 1] * 10);
+							ctx.lineTo(element1[index2] * 10, 320 - element1[index2 + 1] * 10);
 						}
 						ctx.stroke();
 					}
@@ -77,9 +110,9 @@
 					for (let index1 = 0; index1 < path2.length; index1++) {
 							const element1 = path2[index1];
 						ctx.beginPath();
-						ctx.moveTo(element1[0] * 10, 160 - element1[1] * 10);
+						ctx.moveTo(element1[0] * 10, 320 - element1[1] * 10);
 						for (let index2 = 2; index2 < element1.length; index2 += 2) {
-							ctx.lineTo(element1[index2] * 10, 160 - element1[index2 + 1] * 10);
+							ctx.lineTo(element1[index2] * 10, 320 - element1[index2 + 1] * 10);
 						}
 						ctx.stroke();
 					}
@@ -184,4 +217,3 @@
 			</script>   
         </body>  
 </html> 
-
